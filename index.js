@@ -37,12 +37,19 @@ class Bot extends EventEmitter {
     })
   }
 
-  sendMessage (recipient, payload, cb) {
+  sendMessage (recipient, payload, messagingType, cb) {
+    if (cb === undefined && typeof messagingType === 'function') {
+      // callback shall be the last argument, but keep API
+      // compatibility with older versions
+      cb = messagingType
+      messagingType = undefined
+    }
     return request({
       method: 'POST',
       uri: 'https://graph.facebook.com/v2.6/me/messages',
       qs: this._getQs(),
       json: {
+        messaging_type: messagingType || 'RESPONSE',
         recipient: { id: recipient },
         message: payload
       }
